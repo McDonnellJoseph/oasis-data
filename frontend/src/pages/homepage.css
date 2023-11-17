@@ -1,0 +1,24 @@
+.top-bar {
+    display: flex;
+    justify-content: center;
+    vertical-align: top;
+}
+
+html,
+body,
+#root,
+#root>div {
+    height: 100%;
+    width: 100%;
+}
+
+.image {
+    width: 408px;
+    height: 230px;
+}
+
+.middle-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
