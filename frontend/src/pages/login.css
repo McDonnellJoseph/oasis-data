@@ -1,6 +1,6 @@
 .image {
-    width: 291px;
-    height: 164px;
+    width: 285px;
+    height: 235px;
 }
 
 .login-container {
@@ -9,9 +9,20 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
+    text-align: center;
 }
 
 form {
     display: flex;
     flex-direction: column;
+}
+
+.back-button {
+    position: absolute;
+    top: 50px;
+    left: 98px;
+    width: 96px;
+    height: 96px;
+    background: transparent;
+    border-radius: 150px;
 }

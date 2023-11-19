@@ -3,12 +3,17 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import axios from 'axios'
+
+import Cookies from 'universal-cookie'
+
+const cookies = new Cookies();
+
 axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
 
+    const token = cookies.get('token');
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['Girder-Token'] = token;
     }
 
     return config;

@@ -7,6 +7,7 @@ import {
   BrowserRouter as Router,
   Route, Routes
 } from "react-router-dom";
+import UserPage from './pages/userhome';
 
 
 
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path='/login' element={<LoginPage />} />
+        <Route path='/home' element={<UserPage />} />
       </Routes>
     </Router>
   );
