@@ -1,0 +1,18 @@
+[package]
+name = "oasis-data"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+name = "oasislib"
+
+[[bin]]
+path="src/main.rs"
+name = "oasis"
+
+[dependencies]
+actix-web = "4.3.1"
+shuttle-actix-web = "0.34.0"
+shuttle-runtime = "0.34.0"
+tokio = "1.26.0"
