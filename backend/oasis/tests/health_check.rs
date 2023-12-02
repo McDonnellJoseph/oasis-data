@@ -29,7 +29,7 @@ async fn health_check_works() {
 }
 
 #[tokio::test]
-async fn signup_returns_200_OK() {
+async fn signup_returns_200_ok() {
     // Arrange
     let app_address = spawn_app().await;
     let client = reqwest::Client::new();
