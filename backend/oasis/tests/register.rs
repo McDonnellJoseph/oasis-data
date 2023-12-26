@@ -12,13 +12,10 @@ pub struct TestApp {
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
     // Create Database  
     let mut connection = PgConnection::connect(&config.connection_string_without_db()).await.expect("Failed to connect to Postgres");
-    connection.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str());
-    print!("{}", config.database_name);
-    print!("##################");
+    connection.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str()).await.expect("Failed to create Database");
     // Migrate Database 
     let connection_pool = PgPool::connect(&config.connection_string()).await.expect("Failed to connect to Postgres.");
     sqlx::migrate!("./migrations/").run(&connection_pool).await.expect("Failed to migrate the database");
-
     connection_pool
 }
 
@@ -26,15 +23,13 @@ async fn spawn_app() -> TestApp {
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
-    print!("1111111111111111");
     let mut configuration = get_configuration().expect("Failed to read configuration.");
     configuration.database.database_name = Uuid::new_v4().to_string();
-    print!("{}", configuration.database.database_name); 
     let connection_pool = configure_database(&configuration.database).await;
     let server = run(listener, connection_pool.clone()).expect("Failed to bind address");
     let _ = tokio::spawn(server);
     TestApp {
-        address,
+        address: address,
         db_pool: connection_pool,
     }
 }
@@ -44,7 +39,6 @@ async fn register_works() {
     // Arrange
     let app = spawn_app().await;
     let client = reqwest::Client::new();
-
     // Act
     let body = "name=Joseph&surname=McDonnell&email=lala%40toto.com";
     let response = client

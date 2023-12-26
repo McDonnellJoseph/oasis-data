@@ -10,7 +10,7 @@ pub struct FormData {
     surname: String, 
 }
 pub async fn register(form: web::Form<FormData>, pool: web::Data<PgPool>) -> HttpResponse {
-    sqlx::query!(
+    let _ = sqlx::query!(
         r#"INSERT INTO users (id, email, user_name, user_surname, created_at)
         VALUES ($1, $2, $3, $4, $5)"#,
         Uuid::new_v4(), 
