@@ -1,3 +1,4 @@
+![CI Workflow](https://github.com/McDonnellJoseph/oasis-data/actions/workflows/general.yml/badge.svg)
 # Oasis-Data 
 
 This project birthed during the [2023 Bordeaux Hackatech](https://hackatechbordeaux.inria.fr/) and whose goal is to provide medical researchers with a robust data management system.
