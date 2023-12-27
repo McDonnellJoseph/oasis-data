@@ -1,25 +1,52 @@
-use std::net::TcpListener;
-use oasis::startup::run;
-use sqlx::{PgPool, Connection, Executor, PgConnection};
 use oasis::configuration::{get_configuration, DatabaseSettings};
+use oasis::startup::run;
+use oasis::telemetry::{get_subscriber, init_subscriber};
+use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
+use sqlx::{Connection, Executor, PgConnection, PgPool};
+use std::net::TcpListener;
 use uuid::Uuid;
 
+static TRACING: Lazy<()> = Lazy::new(|| {
+    let default_filter_level = "info".to_string();
+    let subscriber_name = "test".to_string();
+    if std::env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
+        init_subscriber(subscriber);
+    } else {
+        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::sink);
+        init_subscriber(subscriber);
+    }
+});
+
 pub struct TestApp {
-    pub address: String, 
+    pub address: String,
     pub db_pool: PgPool,
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
-    // Create Database  
-    let mut connection = PgConnection::connect(&config.connection_string_without_db()).await.expect("Failed to connect to Postgres");
-    connection.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str()).await.expect("Failed to create Database");
-    // Migrate Database 
-    let connection_pool = PgPool::connect(&config.connection_string()).await.expect("Failed to connect to Postgres.");
-    sqlx::migrate!("./migrations/").run(&connection_pool).await.expect("Failed to migrate the database");
+    // Create Database
+    let mut connection =
+        PgConnection::connect(&config.connection_string_without_db().expose_secret())
+            .await
+            .expect("Failed to connect to Postgres");
+    connection
+        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .await
+        .expect("Failed to create Database");
+    // Migrate Database
+    let connection_pool = PgPool::connect(&config.connection_string().expose_secret())
+        .await
+        .expect("Failed to connect to Postgres.");
+    sqlx::migrate!("./migrations/")
+        .run(&connection_pool)
+        .await
+        .expect("Failed to migrate the database");
     connection_pool
 }
 
 async fn spawn_app() -> TestApp {
+    Lazy::force(&TRACING);
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
@@ -53,12 +80,11 @@ async fn register_works() {
     // Assert
     assert_eq!(200, response.status().as_u16());
     let saved = sqlx::query!("SELECT user_name, user_surname FROM users",)
-                .fetch_one(&app.db_pool)
-                .await
-                .expect("Failed to fetch saved users.");
+        .fetch_one(&app.db_pool)
+        .await
+        .expect("Failed to fetch saved users.");
     assert_eq!(saved.user_name, "Joseph");
     assert_eq!(saved.user_surname, "McDonnell");
-
 }
 
 #[tokio::test]
