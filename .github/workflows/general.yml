@@ -12,7 +12,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    working-dir: ./backend/oasis
+    defaults:
+      run:
+        working-directory: ./backend/oasis
     services:
       postgres:
         image: postgres:14
@@ -52,7 +54,9 @@ jobs:
 
   fmt:
     name: Rustfmt
-    working-dir: ./backend/oasis
+    defaults:
+      run:
+        working-directory: ./backend/oasis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -64,7 +68,9 @@ jobs:
 
   clippy:
     name: Clippy
-    working-dir: ./backend/oasis
+    defaults:
+      run:
+        working-directory: ./backend/oasis
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -99,8 +105,10 @@ jobs:
 
   coverage:
     name: Code coverage
-    working-dir: ./backend/oasis
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend/oasis
     services:
       postgres:
         image: postgres:14
