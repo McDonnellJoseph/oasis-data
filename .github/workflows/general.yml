@@ -76,7 +76,7 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: postgres_user
           POSTGRES_PASSWORD: password
           POSTGRES_DB: postgres
         ports:
@@ -113,7 +113,7 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: postgres_user
           POSTGRES_PASSWORD: password
           POSTGRES_DB: postgres
         ports:
