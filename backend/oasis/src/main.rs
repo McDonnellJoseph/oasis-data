@@ -13,6 +13,10 @@ async fn main() -> std::io::Result<()> {
     let connection_pool =
         PgPool::connect_lazy(configuration.database.connection_string().expose_secret())
             .expect("Failed to connect to Postgres :(");
+    sqlx::migrate!("./migrations/")
+        .run(&connection_pool)
+        .await
+        .expect("Faield to migrate the database!");
     let address = format!(
         "{}:{}",
         configuration.application.host, configuration.application.port

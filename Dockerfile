@@ -18,5 +18,6 @@ RUN apt-get update -y \
 
 COPY --from=builder /app/target/release/oasis oasis 
 COPY ./backend/oasis/configuration configuration
+COPY ./backend/oasis/migrations migrations
 ENV APP_ENVIRONMENT production
 ENTRYPOINT [ "./oasis" ]
