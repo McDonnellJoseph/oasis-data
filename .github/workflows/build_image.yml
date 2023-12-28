@@ -26,7 +26,7 @@ jobs:
         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
         docker buildx create --use
         docker buildx inspect --bootstrap
-        docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_REPO:latest -t $DOCKER_REPO:${{ github.sha }} .
+        docker buildx build --platform linux/amd64,linux/arm64 -t oasis-data:${{ github.sha }} .
         docker push $DOCKER_REPO:latest
         docker push $DOCKER_REPO:${{ github.sha }}
 
