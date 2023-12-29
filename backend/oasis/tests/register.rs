@@ -134,3 +134,36 @@ async fn register_returns_400_on_missing_data() {
         );
     }
 }
+
+#[tokio::test]
+async fn register_return_400_on_empty_fields() {
+    let app = spawn_app().await;
+    let client = reqwest::Client::new();
+    let test_cases = vec![
+        (
+            "name=&email=ursula_le_guin%40gmail.com&surname=toto",
+            "empty name",
+        ),
+        ("name=Ursula&email=&surname=toto", "empty email"),
+        (
+            "name=Ursula&email=definitely-not-an-email&surname=toto",
+            "invalid email",
+        ),
+        ("name=Ursula&email=toto@lala.com&surname=", "empty surname"),
+    ];
+    for (body, description) in test_cases {
+        let response = client
+            .post(&format!("{}/user", &app.address))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()
+            .await
+            .expect("Failed to execute request");
+        assert_eq!(
+            400,
+            response.status().as_u16(),
+            "The API did not fail with 400 Bad Request on erroneous Payload: {}",
+            description
+        );
+    }
+}

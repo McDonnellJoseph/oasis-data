@@ -1,5 +1,5 @@
 .env
-target/
+backend/oasis/target/
 tests/
 Dockerfile
 scripts/
