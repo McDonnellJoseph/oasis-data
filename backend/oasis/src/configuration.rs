@@ -1,3 +1,4 @@
+use reqwest::Url;
 use secrecy::{ExposeSecret, Secret};
 use serde::Deserialize;
 use serde_aux::prelude::*;
@@ -5,10 +6,13 @@ use sqlx::{
     postgres::{PgConnectOptions, PgSslMode},
     ConnectOptions,
 };
+
+use crate::domain::UserEmail;
 #[derive(Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
+    pub email_client: EmailClientSettings,
 }
 
 #[derive(Deserialize)]
@@ -27,6 +31,19 @@ pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
+}
+
+#[derive(Deserialize)]
+pub struct EmailClientSettings {
+    pub base_url: Url,
+    pub sender_email: String,
+    pub authorization_token: Secret<String>,
+}
+
+impl EmailClientSettings {
+    pub fn sender(&self) -> Result<UserEmail, String> {
+        UserEmail::parse(self.sender_email.clone())
+    }
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
@@ -85,7 +102,7 @@ impl DatabaseSettings {
         PgConnectOptions::new()
             .host(&self.host)
             .username(&self.username)
-            .password(&self.password.expose_secret())
+            .password(self.password.expose_secret())
             .port(self.port)
             .database("postgres")
             .ssl_mode(ssl_mode)

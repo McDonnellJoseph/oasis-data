@@ -1,4 +1,6 @@
+
 use oasis::configuration::{get_configuration, DatabaseSettings};
+use oasis::email_client::{EmailClient};
 use oasis::startup::run;
 use oasis::telemetry::{get_subscriber, init_subscriber};
 use once_cell::sync::Lazy;
@@ -51,10 +53,16 @@ async fn spawn_app() -> TestApp {
     let mut configuration = get_configuration().expect("Failed to read configuration.");
     configuration.database.database_name = Uuid::new_v4().to_string();
     let connection_pool = configure_database(&configuration.database).await;
-    let server = run(listener, connection_pool.clone()).expect("Failed to bind address");
+    let email_sender = configuration
+        .email_client
+        .sender()
+        .expect("Failed to parse email sender");
+    let email_client = EmailClient::new(configuration.email_client.base_url, email_sender, configuration.email_client.authorization_token);
+    let server =
+        run(listener, connection_pool.clone(), email_client).expect("Failed to bind address");
     let _ = tokio::spawn(server);
     TestApp {
-        address: address,
+        address,
         db_pool: connection_pool,
     }
 }

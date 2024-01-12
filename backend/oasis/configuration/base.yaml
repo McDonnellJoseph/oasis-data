@@ -7,3 +7,7 @@ database:
   username: "postgres_user"
   password: "password"
   database_name: "oasis"
+email_client:
+  base_url: "http://localhost"
+  sender_email: "test@gmail.com"
+  authorization_token: "my-secret-token"
